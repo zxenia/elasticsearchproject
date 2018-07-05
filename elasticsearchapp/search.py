@@ -25,5 +25,5 @@ def bulk_indexing():
 
 def search(author):
 	s = Search().filter('term', author=author)
-	response = s.execute
+	response = s.execute()
 	return response
