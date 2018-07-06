@@ -8,6 +8,8 @@ from elasticsearch_dsl import Document, Text, Date, Search
 from django.shortcuts import render_to_response
 
 from elasticsearch import Elasticsearch
+import json
+from json import load, dumps
 
 
 # Create your views here.
@@ -24,9 +26,8 @@ from elasticsearch import Elasticsearch
 # 		# page = request.GET.get('page', 1)
 # 		# from_ = (int(page) - 1) * settings.ES_PAGE_SIZE
 # 		query = self.request.POST.get('q', None)
-# 		elastic_query = {}
 # 		es = Elasticsearch()
-# 		res = es.search(index='esdocument-index', body=elastic_query)
+# 		res = es.search(index='esdocument-index', body={"query": {"match": {"author": query }}})
 		
 # 		context = {
 # 		'tot_results': res['hits']['total'],
@@ -34,15 +35,30 @@ from elasticsearch import Elasticsearch
 # 		return render(request, self.template_name, context)
 
 
+#this is elasticsearch-py - low level client
 def essearch(request):
 	context = {}
-	if 'q' in request.GET:
-		query = request.GET.get('q', '')
+	q = request.GET.get('q')
+	if q:
 		es = Elasticsearch()
-		results = es.search(index='esdocument-index', body={"query": {"match": {"content": query }}})
-	else:
-		query = None
-		results = None
-	context['query'] = query
-	context['results'] = results
+		results = es.search(index="esdocument-index",
+			body={"query": {"match": {"author": q }}})
+		context = {
+		'es_total_results': results['hits']['total'],
+		'es_results': results['hits']['hits']}
 	return render(request, 'elasticsearchapp/search.html', context)
+
+
+#this is elasticsearch-dsl - hign level client
+def dsl_search(request):
+	client = Elasticsearch()
+	q = request.GET.get('q')
+	if q:
+		results = Search(using=client, index="esdocument-index")\
+		.query("match", author=q).execute()
+		hits = results.hits.total
+	else:
+		results = 'empty'
+
+	return render(request, 'elasticsearchapp/search.html',
+		{'results': results, 'hits': hits})

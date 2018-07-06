@@ -17,7 +17,7 @@
 			<!-- <input id="search" name="q" placeholder="Search..."> -->
 
 			<div class="col-md-6">
-			<h1>Elasticsearch project</h1>
+			<h1>Test search: elasticsearch-py - low level client</h1>
 			<form method="get" action="{% url 'elasticsearchapp:search' %}">
             <div class="form-group">
                 <input type="text" id="search" class="form-control" name="q" placeholder="Search..." required/>
@@ -25,14 +25,44 @@
             <div class="form-group">
                 <input class="btn btn-primary" type="submit" value="SEARCH" />
             </div>
+            </form>
+            </div>
+
+            {% if es_results %}
+            <div class="col-md-6">
+            <h1>Total results: {{es_total_results}}</h1>
+            <div style="border: 1px solid black; margin: 10px; padding: 10px;">
+            {{es_results}}
+            </div>
+            </div>
+            {% endif %}
+
+            <br>
+            <div class="col-md-6">
+            <h1>Test search: elasticsearch-dsl - hign level client</h1>
+            <form method="get" action="{% url 'elasticsearchapp:dsl-search' %}">
+            <div class="form-group">
+                <input type="text" id="search" class="form-control" name="q" placeholder="Search..." required/>
+            </div>
+            <div class="form-group">
+                <input class="btn btn-primary" type="submit" value="SEARCH" />
             </div>
             </form>
-
-
-
+            </div>
+           
             {% if results %}
-            <p>{{ results }}</p>
+            <div class="col-md-6">
+            <h1>Total results: {{hits}}</h1>
+           {% for i in results %}
+           <div style="border: 1px solid black; margin: 10px; padding: 10px;">
+           <p>{{i.title}}</p>
+           <p>{{i.json_object}}</p>
+           <p>{{i.created}} by {{i.author}}</p>
+           </div>
+           {% endfor %}
+           </div>
             {% endif %}
+            
  
 
 
