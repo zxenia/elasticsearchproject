@@ -7,4 +7,5 @@ urlpatterns = [
 	# path('search/', views.SearchIndexView.as_view(), name='search')
 	path('search/', views.essearch, name='search'),
 	path('dsl-search/', views.dsl_search, name='dsl-search'),
+	path('multi-search/', views.multi_search, name='multi-search'),
 	]

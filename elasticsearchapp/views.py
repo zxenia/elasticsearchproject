@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from elasticsearch_dsl import Document, Text, Date, Search
+from elasticsearch_dsl import Document, Text, Date, Search, MultiSearch
 from django.shortcuts import render_to_response
 
 from elasticsearch import Elasticsearch
@@ -62,3 +62,25 @@ def dsl_search(request):
 
 	return render(request, 'elasticsearchapp/search.html',
 		{'results': results, 'hits': hits})
+
+
+#Multisearch in several fields
+def multi_search(request):
+	client = Elasticsearch()
+	q = request.GET.get('q')
+	if q:
+		ms = MultiSearch(using=client, index="esdocument-index")
+		ms = ms.add(Search().query("match", author=q))
+		ms = ms.add(Search().query("match", title=q))
+		ms = ms.add(Search().query("match", json_object=q))
+		responses = ms.execute()
+		hits = []
+		for response in responses:
+			for hit in response:
+				hit = hit.title
+				hits.append(hit)
+	else:
+		responses = 'empty'
+
+	return render(request, 'elasticsearchapp/search.html',
+		{'responses': responses, 'hits': hits})
