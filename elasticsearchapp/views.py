@@ -10,6 +10,7 @@ from django.shortcuts import render_to_response
 from elasticsearch import Elasticsearch
 import json
 from json import load, dumps
+from django.conf import settings
 
 
 # Create your views here.
@@ -51,17 +52,19 @@ def essearch(request):
 
 #this is elasticsearch-dsl - hign level client
 def dsl_search(request):
-	client = Elasticsearch()
+	client = Elasticsearch(settings.ES_DBOE)
 	q = request.GET.get('q')
 	if q:
-		results = Search(using=client, index="esdocument-index")\
-		.query("match", author=q).execute()
-		hits = results.hits.total
+		results = Search(using=client, index="dboe")\
+		.query("match", Hauptlemma=q).execute()
+		# hits = results.hits.total
 	else:
-		results = 'empty'
+		results = None
 
 	return render(request, 'elasticsearchapp/search.html',
-		{'results': results, 'hits': hits})
+		{'results': results,
+		# 'hits': hits
+		})
 
 
 #Multisearch in several fields
